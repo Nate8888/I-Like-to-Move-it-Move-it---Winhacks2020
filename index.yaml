@@ -1,0 +1,10 @@
+- kind: UserEntry
+  properties:
+  - name: claimed
+  - name: endtime
+  - name: type
+  - name: latitude
+  - name: longitude
+  - name: time
+  - name: cost
+  - name: starttime
