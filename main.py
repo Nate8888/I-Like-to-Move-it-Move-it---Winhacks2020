@@ -278,12 +278,13 @@ def createEntryPage():
             else:
                 create_user(claims['email'])
             # update_points(claims['email'],currentAmountOfPoints)
+            return redirect("/map")
         except ValueError as exc:
             # This will be raised if the token is expired or any other
             # verification checks fail.
             error_message = str(exc)
+    return redirect("/")
 
-    return redirect("/map")
 
 # @app.route('/getallentries')
 # def AllEntries():
@@ -348,12 +349,13 @@ def claimSpecificEntry():
 
             claim_entry(claims['email'], theid)
             time.sleep(1.2)
+            return redirect("/myclaimedentries")
         except ValueError as exc:
                     # This will be raised if the token is expired or any other
                     # verification checks fail.
             error_message = str(exc)
 
-    return redirect("/myentries")
+    return redirect("/")
 
 
 @app.route('/deleteentry', methods=['POST'])
