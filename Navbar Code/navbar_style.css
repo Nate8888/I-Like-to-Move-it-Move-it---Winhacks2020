@@ -1,10 +1,15 @@
+body {
+	font-family: 'Source Sans Pro', sans-serif;
+}
+
 nav {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     padding: 15px;
-    background-color: red;
+    background-color: #0d1625;
+	color: #cce0e3;
 }
 
 ul {
@@ -24,6 +29,7 @@ nav ul li a {
 
 nav ul li a:hover {
     text-decoration: none;
+	color: #a12b7c;
 }
 
 .hamburgerBtn {
