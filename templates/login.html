@@ -1,25 +1,96 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head>
+
+        <!-- See https://github.com/firebase/firebaseui-web. -->
+        <!-- [START gae_python37_auth_init_firebase] -->
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+          <script src="https://www.gstatic.com/firebasejs/7.12.0/firebase-app.js"></script>
+
+          <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js">
+
+          <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+      <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+
+          <!-- TODO: Add SDKs for Firebase products that you want to use
+               https://firebase.google.com/docs/web/setup#available-libraries -->
+
+          <script>
+            // Your web app's Firebase configuration
+            var firebaseConfig = {
+              apiKey: "AIzaSyAT_5JGvlwqcaJgM0q2vPEPhgK0K8im7zY",
+              authDomain: "wegotyouaride.firebaseapp.com",
+              databaseURL: "https://wegotyouaride.firebaseio.com",
+              projectId: "wegotyouaride",
+              storageBucket: "wegotyouaride.appspot.com",
+              messagingSenderId: "811131169374",
+              appId: "1:811131169374:web:265ddd721b4143bfcee2cf"
+            };
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+          </script>
+        <!-- *******************************************************************************************
+             * TODO(DEVELOPER): Paste the initialization snippet from:
+             * http://console.firebase.google.com > Overview > Add Firebase to your web app.
+             ***************************************************************************************** -->
+        <!-- [END gae_python37_auth_init_firebase] -->
+        <script>
+          if (typeof firebase === 'undefined') {
+            const msg = "Please paste the Firebase initialization snippet into index.html. See https://console.firebase.google.com > Overview > Add Firebase to your web app.";
+            console.log(msg);
+            alert(msg);
+          }
+        </script>
+        <!-- [START gae_python37_auth_include_firebaseui] -->
+        <script src="https://cdn.firebase.com/libs/firebaseui/2.6.2/firebaseui.js"></script>
+        <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.6.2/firebaseui.css">
+        <!-- [END gae_python37_auth_include_firebaseui] -->
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+        <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <meta charset="utf-8">
-        <title>login page</title>
+        <title>I Like to Move it Move it</title>
         <style>
             body {
-                background-color: #111e35;
+                background-image: url("{{ url_for('static', filename='loginback2.png') }}");
             }
 
             .center-logo {
                 display: block;
                 margin: auto;
-                width: 150px;
+                width: 40%;
+            }
+            h1{
+              color: white;
+            }
+            .firebaseui-idp-google{
+              background-color: black;
+              border: 3px solid #4a0e4a;
+            }
+            .firebaseui-idp-google:hover{
+              background-color: #21355d;
+              border: 3px solid white;
+            }
+            .firebaseui-idp-password{
+              background-color: #4a0e4a;
+              border: 3px solid black;
+            }
+            .firebaseui-idp-password:hover{
+              background-color: #21355d;
+              border: 3px solid white;
+
             }
         </style>
     </head>
+
     <body>
 
-        <!-- Logo + Login form-->
-        <div class="">
-            <img class="center-logo" src="main_logo.png" alt="Company Logo">
-        </div>
+        <div class="wrapper">
+            <img class="center-logo" src="{{ url_for('static', filename='main_logo.png') }}" alt="Company Logo">
+
+        <!-- [START gae_python37_auth_firebase_html] -->
+          <br><br>
+          <div id="firebaseui-auth-container"></div>
+          <button id="sign-out" hidden='true'>Sign Out</button>
+      </div>
     </body>
 </html>

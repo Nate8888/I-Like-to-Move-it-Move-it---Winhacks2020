@@ -54,6 +54,12 @@ def delete_entry(email,keyidfromtheentry):
     key = datastore_client.key('UserEntry',str(keyidfromtheentry))
     datastore_client.delete(key)
 
+def get_claimed_entries_by_email(email):
+    query = datastore_client.query(kind='UserEntry')
+    query.add_filter('claimedby', '=', email)
+    #query.order = ["starttime"]
+    results = list(query.fetch())
+    return results #Return list of entry objects from datastore
 
 def get_entries_by_email(email):
     query = datastore_client.query(kind='UserEntry')
@@ -163,6 +169,13 @@ def get_amount_of_points(email):
 
 
 # [START gae_python37_datastore_render_user_times]
+@app.route('/populate')
+def populateDB():
+    minLat = 42.32753013229483
+    minLong = -83.07904288928222
+    otherLat = 42.30696726094096
+    return 1
+
 @app.route('/map')
 def getMap():
     # Verify Firebase auth.
@@ -206,7 +219,8 @@ def getMap():
                 localDict['cost'] = each_entry_object['cost']
                 listWithEverything.append(localDict)
 
-            return render_template('map.html', all_available_entries=listWithEverything)
+            currentAmountOfPoints = get_amount_of_points(claims['email'])
+            return render_template('map.html', points=currentAmountOfPoints, all_available_entries=listWithEverything)
         except ValueError as exc:
             # This will be raised if the token is expired or any other
             # verification checks fail.
@@ -214,6 +228,40 @@ def getMap():
 
     return render_template('index.html',user_data=claims, error_message=error_message)
 
+@app.route('/myclaimedentries')
+def my_claimed_entries():
+    id_token = request.cookies.get("token")
+    error_message = None
+    claims = None
+    currentAmountOfPoints = 0
+    allentriesownedbyme = []
+
+    if id_token:
+        try:
+            # Verify the token against the Firebase Auth API. This example
+            # verifies the token on each page load. For improved performance,
+            # some applications may wish to cache results in an encrypted
+            # session store (see for instance
+            # http://flask.pocoo.org/docs/1.0/quickstart/#sessions).
+            claims = google.oauth2.id_token.verify_firebase_token(
+                id_token, firebase_request_adapter)
+
+            #theemail = request.form.get('emailfromtheentry')
+            if does_user_exist(claims['email']):
+                print("User Exists!")
+            else:
+                create_user(claims['email'])
+
+            allentriesownedbyme = get_claimed_entries_by_email(claims['email'])
+
+            time.sleep(1.2)
+            currentAmountOfPoints = get_amount_of_points(claims['email'])
+            return render_template('claimedentries.html', points=currentAmountOfPoints, all_entries=allentriesownedbyme)
+        except ValueError as exc:
+                    # This will be raised if the token is expired or any other
+                    # verification checks fail.
+            error_message = str(exc)
+    return redirect('/')
 
 @app.route('/')
 def root():
@@ -238,14 +286,13 @@ def root():
             else:
                 create_user(claims['email'])
             # update_points(claims['email'],currentAmountOfPoints)
+            return redirect("/map")
         except ValueError as exc:
             # This will be raised if the token is expired or any other
             # verification checks fail.
             error_message = str(exc)
 
-    return render_template(
-        'index.html',
-        user_data=claims, error_message=error_message, points=currentAmountOfPoints)
+    return render_template('login.html', user_data=claims, error_message=error_message)
 # [END gae_python37_datastore_render_user_times]
 
 @app.route('/createentry',methods=['POST'])
@@ -319,6 +366,40 @@ def createEntryPage():
 #
 #     return render_template(
 #         'results.html', user_data=claims, error_message=error_message, all_entries=list_of_all_datastore_objects)
+
+@app.route('/returnEntry', methods=['POST'])
+def returnEntry():
+    id_token = request.cookies.get("token")
+    error_message = None
+    claims = None
+
+    if id_token:
+        try:
+            # Verify the token against the Firebase Auth API. This example
+            # verifies the token on each page load. For improved performance,
+            # some applications may wish to cache results in an encrypted
+            # session store (see for instance
+            # http://flask.pocoo.org/docs/1.0/quickstart/#sessions).
+            claims = google.oauth2.id_token.verify_firebase_token(
+                id_token, firebase_request_adapter)
+
+            theid = request.form.get('entryid')
+            #theemail = request.form.get('emailfromtheentry')
+            if does_user_exist(claims['email']):
+                print("User Exists!")
+            else:
+                create_user(claims['email'])
+
+            delete_entry(claims['email'],theid)
+            time.sleep(1.2)
+            return redirect('/myclaimedentries')
+        except ValueError as exc:
+                    # This will be raised if the token is expired or any other
+                    # verification checks fail.
+            error_message = str(exc)
+
+    return redirect('/')
+
 
 
 @app.route('/claimentry', methods=['POST'])
@@ -423,14 +504,18 @@ def get_all_entries_createbyme():
                 allentriesownedbyme = get_entries_by_email(claims['email'])
 
                 time.sleep(1.2)
+                currentAmountOfPoints = get_amount_of_points(claims['email'])
 
-                return render_template('myentries.html', user_data=claims, error_message=error_message, all_entries=allentriesownedbyme)
+                return render_template('myentries.html', points=currentAmountOfPoints, all_entries=allentriesownedbyme)
             except ValueError as exc:
                         # This will be raised if the token is expired or any other
                         # verification checks fail.
                 error_message = str(exc)
         return redirect('/')
 
+@app.route('/logout')
+def logout():
+    return render_template('login.html')
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App

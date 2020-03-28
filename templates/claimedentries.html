@@ -207,7 +207,6 @@
 
   </style>
   <!-- Google Fonts -->
-  <!-- Google Fonts -->
 	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;700;900&display=swap" rel="stylesheet">
 
 	<!-- Custom navbar css -->
@@ -232,7 +231,6 @@
 		text-decoration: none;
 	}
 </style>
-
 </head>
 <body>
 	<!-- Navigation -->
@@ -257,7 +255,6 @@
 					</ul>
 			</nav>
 	</header>
-
   <div class="table-title">
     <h3 align='center'>Your Entries:</h3>
   </div>
@@ -268,7 +265,7 @@
         <th class="text-left">Latitude</th>
         <th class="text-left">Longitude</th>
         <th class="text-left">Cost</th>
-        <th class="text-left">Delete-Entry</th>
+        <th class="text-left">Return</th>
       </tr>
     </thead>
 
@@ -280,18 +277,18 @@
       <td class="text-left">{{each_entry.longitude}}</td>
       <td class="text-left">{{each_entry.cost}}</td>
       <td class='text-left'>
-        <form action='/deleteentry' method='post'>
+        <form action='/returnEntry' method='post'>
           <input type='hidden' name='entryid' value='{{each_entry.key.name}}'>
-          <input type='submit' class='delete' value='Delete'>
+          <input type='submit' class='delete' value='Return'>
         </form>
       </td>
     </tr>
     {%endfor%}
   </tbody>
+
   </table>
 
 
   </body>
 <!-- [END gae_python37_auth_firebase_html] -->
-</body>
 </html>

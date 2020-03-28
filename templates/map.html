@@ -316,7 +316,8 @@
       ],
 			zoom: 13,
 			center: new google.maps.LatLng(42.317432, -83.026772),
-			mapTypeId: 'roadmap'
+			mapTypeId: 'roadmap',
+			mapTypeControl: false
 		};
 		var map = new google.maps.Map(document.getElementById('map'), mapOptions);
 		var infoWindow = new google.maps.InfoWindow();
@@ -373,17 +374,56 @@
   }
 
 	</script>
+
+	<!-- Google Fonts -->
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;700;900&display=swap" rel="stylesheet">
+
+	<!-- Custom navbar css -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='navbar_style.css')}}">
+
+	<!-- Google fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;700;900&display=swap" rel="stylesheet">
+
+<style>
+	a:link, a:visited {
+	  background-color: #9d2a79;
+	  color: white;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	}
+
+	a:hover, a:active {
+	  background-color: #9d2a79;
+		color:white;
+	}
+</style>
 </head>
 <body>
-	<div class="topnav" id="myTopnav">
-  <a href="#home" class="active">Home</a>
-  <a href="#news">News</a>
-  <a href="#contact">Contact</a>
-  <a href="#about">About</a>
-  <a href="javascript:void(0);" class="icon" onclick="myFunction()">
-    <i class="fa fa-bars"></i>
-  </a>
-</div>
+	<!-- Navigation -->
+	<header>
+
+			<!-- Navigation -->
+			<nav>
+					<img class="logo-img" src="{{ url_for('static', filename='main_logo.png')}}" alt="Company Logo">
+
+					<!-- Toggle button -->
+					<button class="hamburgerBtn" id="hamburgerBtn">
+							<i class="fas fa-bars"></i>
+					</button>
+
+					<!-- Actual nav list -->
+					<ul id="nav-ul">
+							<li><a href="#">Greenpoints: {{points}}</a></li>
+							<li><a href="/map">Map</a></li>
+							<li><a href="/myentries">My Entries</a></li>
+							<li><a href="/myclaimedentries">Claimed Entries</a></li>
+							<li><a href="/logout">Logout</a></li>
+					</ul>
+			</nav>
+	</header>
+
+
 <div class="w3-container">
   <div id="id01" class="w3-modal">
     <div class="w3-modal-content">
@@ -406,7 +446,7 @@
           <input class="createentry" id='lloonn' type="text" name="long" value="">
           <br>
           <label>COST:</label>
-          <input class="createentry" type="text" name="cost" value="">
+          <input class="createentry" type="text" name="cost" value="0">
           <br>
           <input class="createentry" type="submit" name="submit" value="Submit">
         </form>
