@@ -384,14 +384,13 @@ def delete_specific_entry():
 
                 delete_entry(claims['email'],theid)
                 time.sleep(1.2)
-                list_of_all_datastore_objects = get_all_available_entities()
+                return redirect('/myentries')
             except ValueError as exc:
                         # This will be raised if the token is expired or any other
                         # verification checks fail.
                 error_message = str(exc)
 
-        return render_template(
-            'results.html', user_data=claims, error_message=error_message, all_entries=list_of_all_datastore_objects)
+        return redirect('/')
 
 @app.route('/myentries')
 def get_all_entries_createbyme():
@@ -422,13 +421,14 @@ def get_all_entries_createbyme():
                 allentriesownedbyme = get_entries_by_email(claims['email'])
 
                 time.sleep(1.2)
+
+                return render_template('myentries.html', user_data=claims, error_message=error_message, all_entries=allentriesownedbyme)
             except ValueError as exc:
                         # This will be raised if the token is expired or any other
                         # verification checks fail.
                 error_message = str(exc)
+        return redirect('/')
 
-        return render_template(
-            'myentries.html', user_data=claims, error_message=error_message, all_entries=allentriesownedbyme)
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
