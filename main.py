@@ -15,8 +15,9 @@
 import time
 import string
 import random
+import json
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from google.auth.transport import requests
 from google.cloud import datastore
 import google.oauth2.id_token
@@ -66,11 +67,11 @@ def claim_entry(email, keyidfromtheentry):
 
     key = datastore_client.key('UserEntry',str(keyidfromtheentry))
     task = datastore_client.get(key)
-    thecost = task['cost']
+    thecost = int(task['cost'])
 
     currentuser =  datastore_client.key('User',email)
     theUser = datastore_client.get(currentuser)
-    theUser['greenpoints'] = theUser['greenpoints']-thecost
+    theUser['greenpoints'] = int(theUser['greenpoints'])-thecost
     datastore_client.put(theUser)
 
     emailoftheowner = task['createdby']
@@ -78,7 +79,7 @@ def claim_entry(email, keyidfromtheentry):
 
     actualOwner = datastore_client.get(ownerOfTheEntryObject)
 
-    actualOwner['greenpoints'] = actualOwner['greenpoints']+thecost
+    actualOwner['greenpoints'] = int(actualOwner['greenpoints'])+thecost
     datastore_client.put(actualOwner)
 
     task['claimed'] = 'true'
@@ -181,12 +182,31 @@ def getMap():
                 id_token, firebase_request_adapter)
 
             if does_user_exist(claims['email']):
-                currentAmountOfPoints = get_amount_of_points(claims['email'])
+                print("User Exists")
             else:
                 create_user(claims['email'])
             # update_points(claims['email'],currentAmountOfPoints)
             list_of_all_datastore_objects = get_all_available_entities()
-            return render_template('map.html')
+
+        # 'createdby':email,
+        # 'type':type,
+        # 'latitude':location[0],
+        # 'longitude':location[1],
+        # 'cost': costOfGreenPoints,
+        # 'claimed': "false",
+        # 'claimedby':""
+
+            listWithEverything = []
+            for each_entry_object in list_of_all_datastore_objects:
+                localDict = {}
+                localDict['id'] = each_entry_object.key.name
+                localDict['lat'] = each_entry_object['latitude']
+                localDict['lon'] = each_entry_object['longitude']
+                localDict['type'] = each_entry_object['type']
+                localDict['cost'] = each_entry_object['cost']
+                listWithEverything.append(localDict)
+
+            return render_template('map.html', all_available_entries=listWithEverything)
         except ValueError as exc:
             # This will be raised if the token is expired or any other
             # verification checks fail.
@@ -249,12 +269,12 @@ def createEntryPage():
             type = request.form.get('type')
             latitude = request.form.get('lat')
             long = request.form.get('long')
-            long = request.form.get('cost')
+            cost = request.form.get('cost')
 
             if does_user_exist(claims['email']):
                 print("User Exists!")
                 #email, type, location, costOfGreenPoints
-                create_entry(claims['email'], type,[latitude,long], 20)
+                create_entry(claims['email'], type,[latitude,long], cost)
             else:
                 create_user(claims['email'])
             # update_points(claims['email'],currentAmountOfPoints)
@@ -263,43 +283,41 @@ def createEntryPage():
             # verification checks fail.
             error_message = str(exc)
 
-    return render_template(
-        'index.html',
-        user_data=claims, error_message=error_message, points=currentAmountOfPoints)
+    return redirect("/map")
 
-@app.route('/getallentries')
-def AllEntries():
-    # Verify Firebase auth.
-    id_token = request.cookies.get("token")
-    error_message = None
-    claims = None
-    currentAmountOfPoints = 0
-    list_of_all_datastore_objects = []
-    if id_token:
-        try:
-            # Verify the token against the Firebase Auth API. This example
-            # verifies the token on each page load. For improved performance,
-            # some applications may wish to cache results in an encrypted
-            # session store (see for instance
-            # http://flask.pocoo.org/docs/1.0/quickstart/#sessions).
-            claims = google.oauth2.id_token.verify_firebase_token(
-                id_token, firebase_request_adapter)
-
-            if does_user_exist(claims['email']):
-                print("User Exists!")
-                #email, type, location, time, costOfGreenPoints
-            else:
-                create_user(claims['email'])
-                time.sleep(1.2)
-            list_of_all_datastore_objects = get_all_available_entities()
-            # update_points(claims['email'],currentAmountOfPoints)
-        except ValueError as exc:
-            # This will be raised if the token is expired or any other
-            # verification checks fail.
-            error_message = str(exc)
-
-    return render_template(
-        'results.html', user_data=claims, error_message=error_message, all_entries=list_of_all_datastore_objects)
+# @app.route('/getallentries')
+# def AllEntries():
+#     # Verify Firebase auth.
+#     id_token = request.cookies.get("token")
+#     error_message = None
+#     claims = None
+#     currentAmountOfPoints = 0
+#     list_of_all_datastore_objects = []
+#     if id_token:
+#         try:
+#             # Verify the token against the Firebase Auth API. This example
+#             # verifies the token on each page load. For improved performance,
+#             # some applications may wish to cache results in an encrypted
+#             # session store (see for instance
+#             # http://flask.pocoo.org/docs/1.0/quickstart/#sessions).
+#             claims = google.oauth2.id_token.verify_firebase_token(
+#                 id_token, firebase_request_adapter)
+#
+#             if does_user_exist(claims['email']):
+#                 print("User Exists!")
+#                 #email, type, location, time, costOfGreenPoints
+#             else:
+#                 create_user(claims['email'])
+#                 time.sleep(1.2)
+#             list_of_all_datastore_objects = get_all_available_entities()
+#             # update_points(claims['email'],currentAmountOfPoints)
+#         except ValueError as exc:
+#             # This will be raised if the token is expired or any other
+#             # verification checks fail.
+#             error_message = str(exc)
+#
+#     return render_template(
+#         'results.html', user_data=claims, error_message=error_message, all_entries=list_of_all_datastore_objects)
 
 
 @app.route('/claimentry', methods=['POST'])
@@ -330,14 +348,12 @@ def claimSpecificEntry():
 
             claim_entry(claims['email'], theid)
             time.sleep(1.2)
-            list_of_all_datastore_objects = get_all_available_entities()
         except ValueError as exc:
                     # This will be raised if the token is expired or any other
                     # verification checks fail.
             error_message = str(exc)
 
-    return render_template(
-        'results.html', user_data=claims, error_message=error_message, all_entries=list_of_all_datastore_objects)
+    return redirect("/myentries")
 
 
 @app.route('/deleteentry', methods=['POST'])

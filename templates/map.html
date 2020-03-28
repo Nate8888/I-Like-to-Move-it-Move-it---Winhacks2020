@@ -118,7 +118,13 @@
 
 	</style>
 	<script>
+
 	function initMap() {
+		var myvar = '{{all_available_entries|tojson}}';
+		var parsed = JSON.parse(myvar); //JSON OBJECT
+
+
+
 		var mapOptions = {
       styles: [{
           "elementType": "geometry",
@@ -312,13 +318,36 @@
 			mapTypeId: 'roadmap'
 		};
 		var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+		var infoWindow = new google.maps.InfoWindow();
 
-		var goldenGatePosition = {lat: 37.8199,lng: -122.4783};
-		var marker = new google.maps.Marker({
-				position: goldenGatePosition,
+		for(var i = 0;i<parsed.length;i++){
+			var localPoints = {lat: parseFloat(parsed[i].lat),lng: parseFloat(parsed[i].lon)};
+			var type = parsed[i].type + "\nCost: "+parsed[i].cost;
+		  var data = parsed[i]
+
+			var marker = new google.maps.Marker({
+				position: localPoints,
 				map: map,
-				title: 'Golden Gate Bridge'
-		});
+				title: type
+			});
+
+			// marker.metadata = {id:parsed[i].id};
+
+			(function (marker, data) {
+					google.maps.event.addListener(marker, "click", function (e) {
+							//Wrap the content inside an HTML DIV in order to set height and width of InfoWindow.
+							infoWindow.setContent("<div style = 'width:200px;min-height:40px'>" +"<form action=\"claimentry\" method=\"post\"><input name=\"entryid\" type=\"hidden\" value=\""+data.id+"\" hidden>"+"<h3>Type: "+data.type+"<br>Cost: "+data.cost +" Greenpoints"+"</h3><input type='submit' value='Reserve'></form>"+"</div>");
+							infoWindow.open(map, marker);
+					});
+				})(marker, data);
+
+		}
+		// var goldenGatePosition = {lat: 37.8199,lng: -122.4783};
+		// var marker = new google.maps.Marker({
+		// 		position: goldenGatePosition,
+		// 		map: map,
+		// 		title: 'Golden Gate Bridge'
+		// });
 
     map.addListener('click', function(e) {
       placeMarkerAndPanTo(e.latLng, map);
@@ -326,12 +355,12 @@
     });
 
     function placeMarkerAndPanTo(latLng, map) {
-      var marker = new google.maps.Marker({
-        position: latLng,
-        map: map
-      });
       map.panTo(latLng);
     }
+	}
+
+	function claimEntry(entryid){
+		console.log("You clicked "+entryid);
 	}
 
   function openModalAndBoom(latLng){
@@ -341,6 +370,7 @@
     document.getElementById('llaatt').value = latLng.lat();
     document.getElementById('lloonn').value = latLng.lng();
   }
+
 	</script>
 </head>
 <body>
