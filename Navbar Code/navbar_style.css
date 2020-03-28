@@ -45,6 +45,10 @@ nav ul li a:hover {
     outline: none;
 }
 
+.logo-img {
+	width: 150px;
+}
+
 /* Media Queries */
 @media screen and (max-width: 960px) {
     /* Applied when the screen's width is 960px or smaller. */
