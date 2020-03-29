@@ -50,6 +50,9 @@
         <meta charset="utf-8">
         <title>I Like to Move it Move it</title>
         <style>
+        .firebaseui-idp-password{
+          display: none;
+        }
             body {
                 background-image: url("{{ url_for('static', filename='loginback2.png') }}");
             }
@@ -73,12 +76,15 @@
             .firebaseui-idp-password{
               background-color: #4a0e4a;
               border: 3px solid black;
+              display: none;
             }
             .firebaseui-idp-password:hover{
               background-color: #21355d;
               border: 3px solid white;
+              display: none;
 
             }
+
         </style>
     </head>
 
@@ -90,6 +96,9 @@
         <!-- [START gae_python37_auth_firebase_html] -->
           <br><br>
           <div id="firebaseui-auth-container"></div>
+          <div id="login-info" hidden=true>
+            <a href="/map"><button>Click Here To Go to Map!</a></button>
+          </div>
           <button id="sign-out" hidden='true'>Sign Out</button>
       </div>
     </body>

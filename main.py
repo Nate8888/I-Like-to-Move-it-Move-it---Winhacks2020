@@ -169,13 +169,6 @@ def get_amount_of_points(email):
 
 
 # [START gae_python37_datastore_render_user_times]
-@app.route('/populate')
-def populateDB():
-    minLat = 42.32753013229483
-    minLong = -83.07904288928222
-    otherLat = 42.30696726094096
-    return 1
-
 @app.route('/map')
 def getMap():
     # Verify Firebase auth.
