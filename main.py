@@ -34,20 +34,6 @@ def randomStringDigits(stringLength=6):
     """Generate a random string of letters and digits """
     lettersAndDigits = string.ascii_letters + string.digits
     return ''.join(random.choice(lettersAndDigits) for i in range(stringLength))
-# def store_time(dt):
-#     entity = datastore.Entity(key=datastore_client.key('visit'))
-#     entity.update({
-#         'timestamp': dt
-#     })
-#
-#     datastore_client.put(entity)
-# def fetch_times(limit):
-#     query = datastore_client.query(kind='visit')
-#     query.order = ['-timestamp']
-#
-#     times = query.fetch(limit=limit)
-#
-#     return times
 
 #TODO Check if the email is the owner of the entry before deleting lol
 def delete_entry(email,keyidfromtheentry):
